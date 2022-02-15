@@ -19,7 +19,7 @@ class _HomescreenState extends State<Homescreen> {
     Homeappbar('꿈일기 어플'),
     Homeappbar('index 1'),
     Homeappbar('index 2'),
-    Homeappbar('index 3'),
+    Homeappbar('index last'),
   ];
   List bdPages = [
     Body(),
