@@ -12,16 +12,15 @@ class Body extends StatelessWidget {
           //스토리 부분이다 Row 가 감싸고 있는 리스트뷰로 구현할것이다.
           height: size.height * 0.13,
           color: Colors.black38,
+          /**child: StreamBuilder(
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              return ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemBuilder: ,
+              );
+            },
 
-        ),
-        Container(
-          height: size.height * 0.08,
-          width: size.width,
-          color: Colors.black26,
-          child: Text(
-            '배너광고 자리',
-            textAlign: TextAlign.center,
-          ),
+          ),**/
         ),
       ],
     );
