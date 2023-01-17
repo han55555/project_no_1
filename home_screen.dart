@@ -2,11 +2,29 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart';
-
+import 'package:provider/provider.dart';
 import 'package:project_flutter/body.dart';
-
+import 'package:project_flutter/search_page.dart';
+import 'provider_memos.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
+extension HexColor on Color {
+  /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
+  static Color fromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
+  /// Prefixes a hash sign if [leadingHashSign] is set to `true` (default is `true`).
+  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
+      '${alpha.toRadixString(16).padLeft(2, '0')}'
+      '${red.toRadixString(16).padLeft(2, '0')}'
+      '${green.toRadixString(16).padLeft(2, '0')}'
+      '${blue.toRadixString(16).padLeft(2, '0')}';
+}
 
 class Homescreen extends StatefulWidget {
   const Homescreen({Key? key}) : super(key: key);
@@ -29,9 +47,7 @@ class _HomescreenState extends State<Homescreen> {
     Container(
       child: Text('index 1'),
     ),
-    Container(
-      child: Text('index 2'),
-    ),
+    Search_page(),
     Container(
       child: Text('index 3'),
     ),
@@ -45,54 +61,38 @@ class _HomescreenState extends State<Homescreen> {
         child: ListView(
           children: <Widget>[
             DrawerHeader(
-                child: Text('drawerheader 넣을지 말지 고민중'),
+              child: Text('drawerheader 넣을지 말지 고민중'),
               decoration: BoxDecoration(color: Color(0xffBE7A7B)),
             ),
-
             ListTile(
-              leading: Icon(
-                Icons.contact_page
-              ),
+              leading: Icon(Icons.contact_page),
               title: Text('아직 미정'),
               trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-              },
+              onTap: () {},
             ),
             ListTile(
-              leading: Icon(
-                  Icons.contact_page
-              ),
+              leading: Icon(Icons.contact_page),
               title: Text('아직 미정'),
               trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-              },
+              onTap: () {},
             ),
             ListTile(
-              leading: Icon(
-                  Icons.contact_page
-              ),
+              leading: Icon(Icons.contact_page),
               title: Text('아직 미정'),
               trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-              },
+              onTap: () {},
             ),
             ListTile(
-              leading: Icon(
-                  Icons.contact_page
-              ),
+              leading: Icon(Icons.contact_page),
               title: Text('아직 미정'),
               trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-              },
+              onTap: () {},
             ),
             ListTile(
-              leading: Icon(
-                  Icons.contact_page
-              ),
+              leading: Icon(Icons.contact_page),
               title: Text('아직 미정'),
               trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-              },
+              onTap: () {},
             ),
           ],
         ),
@@ -152,22 +152,30 @@ class _WritingPageState extends State<WritingPage> {
   int colorindex = 0;
   int? selectcolorindex = null;
   TextEditingController memoController = new TextEditingController();
+  Color pickerColor = Color(0xffffffff);
+  Color currentColor = Color(0xffffffff);
+
+  void changeColor(Color color) {
+    setState(() => pickerColor = color);
+  }
 
   Future _createMemo() async {
     var formData = FormData.fromMap(
       {
-        "color": selectcolorindex,
+        "color": currentColor.toHex(),
         "memo": memoController.text,
+        "user_id": 'user_1',
       },
     );
-    return await dio.post("http://10.0.2.2/flutter_project/insert.php", data: formData);
+    return await dio.post("http://10.0.2.2/flutter_project/insert.php",
+        data: formData);
   }
 
   void _onConfirm(context) async {
     await _createMemo();
     Navigator.pop(context);
-    //이렇게 하면 creatememo가 실행된뒤에 pop이되는건가
   }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -187,94 +195,65 @@ class _WritingPageState extends State<WritingPage> {
               icon: Icon(Icons.accessibility_sharp),
               onPressed: () {
                 _onConfirm(context);
+                context.read<Memos>().getMemoList();
               },
             )
           ],
         ),
         body: Padding(
-          padding: EdgeInsets.only(left: 10, right: 10,),
+          padding: EdgeInsets.only(
+            left: 10,
+            right: 10,
+          ),
           child: Column(children: <Widget>[
-            Text('색감선택', style: TextStyle(fontSize: 18)),
-
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.red, onPrimary: Colors.white,),
-                    child: (colorindex == selectcolorindex ? Text('checked') : Text('red')),
-                    onPressed: () {
-                      colorChecked();
-                    },
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.green, onPrimary: Colors.white,),
-                    child: (colorindex+1 == selectcolorindex ? Text('checked') : Text('green')),
-                    onPressed: () {
-                      colorChecked(1);
-                    }
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.blue, onPrimary: Colors.white,),
-                    child: (colorindex+2 == selectcolorindex ? Text('checked') : Text('blue')),
-                    onPressed: () {
-                      colorChecked(2);
-                    },
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.indigo, onPrimary: Colors.white,),
-                    child: (colorindex+3 == selectcolorindex ? Text('checked') : Text('indigo')),
-                    onPressed: () {
-                      colorChecked(3);
-                    },
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.grey, onPrimary: Colors.white,),
-                    child: (colorindex+4 == selectcolorindex ? Text('checked') : Text('grey')),
-                    onPressed: () {
-                      colorChecked(4);
-                    },
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.pink, onPrimary: Colors.white,),
-                    child: (colorindex+5 == selectcolorindex ? Text('checked') : Text('pink')),
-                    onPressed: () {
-                      colorChecked(5);
-                    },
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.white, onPrimary: Colors.black,),
-                    child: (colorindex+6 == selectcolorindex ? Text('checked') : Text('other')),
-                    onPressed: () {
-                      colorChecked(6);
-                    },
-                  ),
-                ],
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: TextStyle(fontSize: 18),
               ),
+              child: Text('색감선택'),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Pick a color!'),
+                      content: SingleChildScrollView(
+                        child: BlockPicker(
+                          pickerColor: currentColor,
+                          onColorChanged: changeColor,
+                        ),
+                      ),
+                      actions: <Widget>[
+                        ElevatedButton(
+                          child: const Text('Got it'),
+                          onPressed: () {
+                            setState(() => currentColor = pickerColor);
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
-
             Column(
-                  children: <Widget>[
-                    TextField(
-                      controller: memoController,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          disabledBorder: InputBorder.none,
-                          hintText: '작성공간'),
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                    )
-                  ],
-                ),
+              children: <Widget>[
+                TextField(
+                  controller: memoController,
+                  decoration: InputDecoration(
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                      hintText: '작성공간'),
+                  keyboardType: TextInputType.multiline,
+                  maxLines: null,
+                )
+              ],
+            ),
           ]),
         ));
-  }
-  void colorChecked([int index = 0]) {
-    setState(() {
-      colorindex+index == selectcolorindex ? selectcolorindex = null : selectcolorindex = index;
-    });
   }
 }
